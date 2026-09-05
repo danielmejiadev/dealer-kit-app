@@ -1,4 +1,5 @@
 import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { listVehiclesForDealer } from "../../services/vehicleService";
 import { listCoverPhotosByVehicleId } from "../../services/vehiclePhotoService";
 import { getVehiclePhotoUrl } from "../../utils/vehiclePhotoUrl";
@@ -13,11 +14,7 @@ export async function VehicleCatalogGrid() {
   const vehicles = await listVehiclesForDealer(dealer.id, { publishedOnly: true });
 
   if (vehicles.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 rounded-lg bg-surface p-12 text-center shadow-soft">
-        <p className="text-ink-dim">Todavía no hay vehículos publicados.</p>
-      </div>
-    );
+    return <EmptyState message="Todavía no hay vehículos publicados." />;
   }
 
   const coverPhotosByVehicleId = await listCoverPhotosByVehicleId(vehicles.map((vehicle) => vehicle.id));
