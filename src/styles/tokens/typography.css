@@ -1,5 +1,11 @@
 @theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Per-tenant typography — same indirection pattern as --color-accent in
+     tokens/colors.css (see AGENTS.md, "Per-tenant theming"). --tenant-font-
+     body/-heading are set inline by TenantThemeProvider from the dealer's
+     theme jsonb; each falls back to Inter (this app's own chrome, and any
+     tenant row missing a value) when there's no tenant in context. */
+  --font-sans: var(--tenant-font-body, var(--font-inter), ui-sans-serif, system-ui, sans-serif);
+  --font-heading: var(--tenant-font-heading, var(--font-sans));
   --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
   /* Explicit type scale — every heading/body size in the app should come

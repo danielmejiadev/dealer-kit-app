@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import clsx from "clsx";
 
-type BadgeTone = "neutral" | "success" | "warning" | "danger";
+export type BadgeTone = "neutral" | "success" | "warning" | "danger";
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: BadgeTone;

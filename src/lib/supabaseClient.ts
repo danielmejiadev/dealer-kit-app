@@ -1,12 +1,13 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { Database } from "./database.types";
 
 // Client-side: safe to call from a Client Component. Uses the public
 // anon key — Row-Level Security is what actually protects the data, not
 // the secrecy of this key. See AGENTS.md, "connecting with Supabase vs.
 // the AI provider key".
 export function createBrowserSupabaseClient() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
@@ -17,7 +18,7 @@ export function createBrowserSupabaseClient() {
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -38,7 +39,7 @@ export async function createServerSupabaseClient() {
 // normal Route Handler or Server Component should use
 // createServerSupabaseClient() instead so RLS still applies.
 export function createServiceRoleSupabaseClient() {
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { cookies: { getAll: () => [], setAll: () => {} } }
