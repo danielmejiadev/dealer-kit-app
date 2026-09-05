@@ -43,3 +43,6 @@ next-env.d.ts
 
 # editor/agent local state
 .claude/
+
+# agent skills (regenerated from skills-lock.json via `npx skills experimental_install`)
+.agents/skills/
