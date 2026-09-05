@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "dealer-kit-app",
+  "compatibility_date": "2026-09-04",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "dealer-kit-app"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  }
+  // NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y
+  // SUPABASE_SERVICE_ROLE_KEY se configuran como variables/secrets del
+  // Worker (dashboard o `wrangler secret put`), nunca aquí — este archivo
+  // se commitea y el repo es público. Ver .dev.vars.example para desarrollo
+  // local con `wrangler dev`.
+}

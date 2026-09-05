@@ -1,0 +1,8 @@
+# Copia a .dev.vars (gitignorado, nunca se commitea) para `wrangler dev`/`pnpm preview`.
+# Mismos valores que .env.local — ver ese archivo para dónde conseguirlos.
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+ANTHROPIC_API_KEY=
