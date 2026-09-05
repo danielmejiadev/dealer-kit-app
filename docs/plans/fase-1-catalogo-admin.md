@@ -206,12 +206,15 @@ Función helper `private.is_dealer_member(dealer_id)` (y su variante por
 **Magic link** (`signInWithOtp`), no password — un dueño de compraventa que entra
 pocas veces por semana no necesita gestión de contraseñas ni flujo de reset.
 
-**Gateo: `proxy.ts`** en la raíz del repo (reemplazo de `middleware.ts` en Next
-16), `matcher: ["/admin/:path*"]` — no corre en el catálogo público. Llama
-`supabase.auth.getClaims()` inmediatamente después de crear el cliente (sin
-código entre medio, por la advertencia explícita de los docs de Supabase) y
-redirige a `/admin/login` si no hay claims. Esto es solo conveniencia de UX — la
-seguridad real la sigue haciendo RLS.
+**Gateo: sin `proxy.ts`** — ver "Fase 0.5 → Decisión importante ligada a Fase
+1" más arriba. El chequeo de sesión vive en `admin/(protected)/layout.tsx`
+(Server Component): llama `supabase.auth.getClaims()` inmediatamente después
+de crear el cliente (sin código entre medio, por la advertencia explícita de
+los docs de Supabase) y redirige a `/admin/login` si no hay claims.
+`admin/login/page.tsx` vive fuera del route group `(protected)` a propósito,
+para que este layout no se le aplique también a él (evitaría un loop de
+redirect). Esto es solo conveniencia de UX — la seguridad real la sigue
+haciendo RLS.
 
 Flujo respetando "hooks nunca llaman a Supabase directo": `LoginForm` → hook →
 `POST /api/v1/auth/magic-link` → `authService.sendMagicLink()`. El único punto
@@ -261,11 +264,11 @@ src/
     vehicles/components/admin/{VehicleAdminList,VehicleForm,VehiclePhotoUploader,DeleteVehicleModal}.tsx
   app/
     (public)/layout.tsx + page.tsx + vehiculos/[id]/page.tsx
-    admin/layout.tsx + login/page.tsx + page.tsx + vehiculos/nuevo/page.tsx + vehiculos/[id]/editar/page.tsx
+    admin/(protected)/layout.tsx + page.tsx + vehiculos/nuevo/page.tsx + vehiculos/[id]/editar/page.tsx
+    admin/login/page.tsx
     auth/callback/route.ts
     api/v1/auth/{magic-link,logout}/route.ts
     api/v1/vehicles/route.ts, [id]/route.ts, [id]/photos/route.ts, [id]/photos/[photoId]/route.ts
-proxy.ts
 ```
 
 Patrón de primera carga del admin: `page.tsx` (Server Component, delgado) →
