@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCOP } from "@/utils/currency";
 import { useVehicles } from "../../hooks/useVehicles";
 import { useSetVehicleStatus } from "../../hooks/useSetVehicleStatus";
@@ -16,23 +18,35 @@ interface VehicleAdminListProps {
 }
 
 export function VehicleAdminList({ initialVehicles }: VehicleAdminListProps) {
-  const { data: vehicles } = useVehicles(initialVehicles);
+  const { data: vehicles, isFetching } = useVehicles(initialVehicles);
   const setStatusMutation = useSetVehicleStatus();
   const [vehiclePendingDeletion, setVehiclePendingDeletion] = useState<Vehicle | null>(null);
+
+  function isChangingStatus(vehicleId: number) {
+    return setStatusMutation.isPending && setStatusMutation.variables?.vehicleId === vehicleId;
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-heading font-semibold text-ink">Vehículos</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-heading font-semibold text-ink">Vehículos</h1>
+          {isFetching ? <Spinner /> : null}
+        </div>
         <Link href="/admin/vehiculos/nuevo">
           <Button>Nuevo vehículo</Button>
         </Link>
       </div>
 
       {vehicles.length === 0 ? (
-        <p className="rounded-lg bg-surface p-8 text-center text-ink-dim shadow-soft">
-          Todavía no hay vehículos. Crea el primero.
-        </p>
+        <EmptyState
+          message="Todavía no hay vehículos."
+          action={
+            <Link href="/admin/vehiculos/nuevo">
+              <Button>Crear el primero</Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="overflow-x-auto rounded-lg bg-surface shadow-soft">
           <table className="w-full text-left text-sm">
@@ -68,7 +82,9 @@ export function VehicleAdminList({ initialVehicles }: VehicleAdminListProps) {
                           variant="ghost"
                           disabled={setStatusMutation.isPending}
                           onClick={() => setStatusMutation.mutate({ vehicleId: vehicle.id, status: "draft" })}
+                          className="inline-flex items-center gap-2"
                         >
+                          {isChangingStatus(vehicle.id) ? <Spinner size="sm" /> : null}
                           Despublicar
                         </Button>
                       ) : (
@@ -76,7 +92,9 @@ export function VehicleAdminList({ initialVehicles }: VehicleAdminListProps) {
                           variant="ghost"
                           disabled={setStatusMutation.isPending}
                           onClick={() => setStatusMutation.mutate({ vehicleId: vehicle.id, status: "published" })}
+                          className="inline-flex items-center gap-2"
                         >
+                          {isChangingStatus(vehicle.id) ? <Spinner size="sm" /> : null}
                           Publicar
                         </Button>
                       )}
