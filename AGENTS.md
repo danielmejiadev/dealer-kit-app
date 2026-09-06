@@ -4,6 +4,12 @@
   `d`, etc. Name things for what they hold (`event`, `element`, `vehicle`,
   `index`, `swatch`...), even in small callbacks (`.map`, `.filter`,
   event handlers).
+- **Code comments are in English, and rare.** Only write one when
+  something isn't obvious from the code itself — a non-obvious "why", a
+  constraint from RLS/Next.js/a library, a deliberate deviation from the
+  usual pattern. Never restate what a well-named symbol already says
+  (no `// Skeleton` above a `Skeleton` component). Keep the ones you do
+  write to a sentence, not a paragraph.
 - **Avoid complex inline functions inside components.** Non-trivial logic
   (formatting, slugs, mock data, event-name constants) belongs in `utils/`,
   grouped by what it relates to (e.g. `utils/currency.ts` for COP
@@ -171,6 +177,9 @@ shared across tenants. Mechanism:
   `danielmejiadev`, stop and tell the user to switch it
   (`gh auth switch`/`gh auth login`) instead of proceeding, retrying under
   another account, or working around it some other way.
+- **Commit messages and PR titles/descriptions are always in English**
+  (code comments are English too — see "Project coding conventions"
+  above — but this repo's prose docs, like this file, stay in Spanish).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
