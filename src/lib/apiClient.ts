@@ -1,13 +1,8 @@
-// Thin fetch wrapper shared by every hook that calls our own Route
-// Handlers (app/api/v1/**) — parses JSON and throws an ApiError carrying
-// the server's message (and its per-field `fieldErrors`, when the
-// response includes them) on a non-2xx response, so hooks don't each
-// repeat the same response-parsing boilerplate. Still just a low-level
-// client, no business logic — see AGENTS.md, "lib/".
+// Shared fetch wrapper: throws ApiError (with per-field fieldErrors, if present) on a non-2xx response so hooks don't each repeat that parsing.
 
 export class ApiError extends Error {
   status: number;
-  /** Errores de validación por campo, cuando la respuesta los trae (ver `app/api/v1/vehicles/**`). */
+  /** Per-field validation errors, when the response includes them. */
   fieldErrors?: Record<string, string>;
 
   constructor(message: string, status: number, fieldErrors?: Record<string, string>) {

@@ -1,5 +1,3 @@
-// Pure formatting helper — no external calls. See AGENTS.md, "utils/".
-
 const copFormatter = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",

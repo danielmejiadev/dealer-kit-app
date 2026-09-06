@@ -12,7 +12,7 @@ interface AuthorizedDealerContext {
   dealerMember: DealerMember;
 }
 
-/** 401/403 tipados para que las rutas los distingan de un error 500 real. */
+/** Typed 401/403 so routes can distinguish these from a real 500 error. */
 export class AuthGuardError extends Error {
   status: 401 | 403;
 
@@ -23,12 +23,7 @@ export class AuthGuardError extends Error {
   }
 }
 
-/**
- * Guard compartido por cada Route Handler bajo api/v1/vehicles/**: sigue el
- * orden que pide AGENTS.md — getClaims() (401 si falta) →
- * getCurrentDealerMember() (403 si falta). No es una capa nueva sobre
- * services/, solo evita repetir estas dos llamadas en cada route.ts.
- */
+/** Shared by every Route Handler under api/v1/vehicles/**, just to avoid repeating these two calls in each route.ts. */
 export async function requireDealerMember(): Promise<AuthorizedDealerContext> {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.auth.getClaims();
@@ -47,7 +42,7 @@ export async function requireDealerMember(): Promise<AuthorizedDealerContext> {
   return { dealer, dealerMember };
 }
 
-/** null si `error` no es un AuthGuardError — para dejar pasar el 500 genérico del catch. */
+/** null if `error` isn't an AuthGuardError, so the catch block's generic 500 takes over. */
 export function authGuardErrorResponse(error: unknown): NextResponse | null {
   if (error instanceof AuthGuardError) {
     return NextResponse.json({ error: error.message }, { status: error.status });

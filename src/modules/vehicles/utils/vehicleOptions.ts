@@ -1,6 +1,4 @@
-// Shared option lists for vehicle Select fields + status labels/badge
-// tones. Pure data, no external calls — see AGENTS.md, "utils/". Values
-// mirror the check constraints in supabase/migrations/0001_create_core_schema.sql.
+// Values mirror the check constraints in supabase/migrations/0001_create_core_schema.sql.
 import type { SelectOption } from "@/components/ui/Select";
 import type { BadgeTone } from "@/components/ui/Badge";
 

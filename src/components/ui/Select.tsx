@@ -16,9 +16,7 @@ interface SelectProps {
   className?: string;
 }
 
-// Behavior (keyboard navigation, listbox semantics, positioning) comes
-// from Base UI's Select primitive — this file only supplies our own
-// tokens. See AGENTS.md, "UI component library: Base UI, hand-wrapped".
+// Behavior (keyboard navigation, listbox semantics, positioning) comes from Base UI's Select primitive; this file only supplies our own tokens.
 export function Select({ value, onValueChange, options, placeholder, className }: SelectProps) {
   return (
     <SelectPrimitive.Root

@@ -5,10 +5,7 @@ import { listCoverPhotosByVehicleId } from "../../services/vehiclePhotoService";
 import { getVehiclePhotoUrl } from "../../utils/vehiclePhotoUrl";
 import { VehicleCard } from "./VehicleCard";
 
-// Server Component: primera carga del catálogo público, llama a
-// services/ directo (ver AGENTS.md, "Reading data on first load"). Solo
-// vehículos publicados — RLS ya lo garantiza del lado de la base de
-// datos, este filtro solo evita traer filas de más.
+// RLS already guarantees published-only on the DB side; this filter only avoids fetching extra rows.
 export async function VehicleCatalogGrid() {
   const dealer = await getCurrentDealer();
   const vehicles = await listVehiclesForDealer(dealer.id, { publishedOnly: true });

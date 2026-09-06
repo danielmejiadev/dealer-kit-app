@@ -8,12 +8,7 @@ interface TenantThemeProviderProps {
   children: ReactNode;
 }
 
-// Server Component: derives --tenant-accent/-accent-ink (utils/color.ts)
-// and --tenant-font-heading/-body (dealer/utils/theme.ts) from the
-// dealer's row and fixes them as inline CSS custom properties on a
-// wrapping element. Every component below just uses
-// bg-accent/text-accent/font-heading like any other Tailwind class —
-// never aware the value is dynamic. See AGENTS.md, "Per-tenant theming".
+// Sets the tenant's derived tokens as inline CSS custom properties so components below just use bg-accent/font-heading, unaware the value is dynamic.
 export function TenantThemeProvider({ dealer, children }: TenantThemeProviderProps) {
   const theme = parseDealerTheme(dealer.theme);
   const { accent, accentInk } = deriveAccentTokens(theme.accentColorHex);

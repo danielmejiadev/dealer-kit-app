@@ -1,6 +1,4 @@
-// Pure color math for per-tenant theming — see AGENTS.md, "Per-tenant
-// theming". No external calls, no Supabase/AI, no NextRequest: this is why
-// it lives in utils/ instead of services/.
+// Pure color math, no external calls — why this lives in utils/ instead of services/.
 
 interface Rgb {
   red: number;
@@ -115,15 +113,7 @@ function isValidAccentHex(value: string): boolean {
   return HEX_COLOR_PATTERN.test(value);
 }
 
-/**
- * Derives the two CSS custom property values a tenant layout sets inline
- * (--tenant-accent, --tenant-accent-ink): the brand color as stored (for
- * fills/backgrounds), plus a darkened version of the same hue that clears
- * WCAG AA contrast against a light surface (for text/icons that need to
- * read as "branded" without failing accessibility). Falls back to
- * DealerKit's own default accent for anything that isn't a valid 6-digit
- * hex color — the same default `tokens/colors.css` uses.
- */
+/** Darkens the same hue until it clears WCAG AA contrast for accentInk; falls back to DealerKit's default accent for an invalid hex. */
 export function deriveAccentTokens(accentColorHex: string): AccentTokens {
   const safeHex = isValidAccentHex(accentColorHex) ? accentColorHex : DEFAULT_ACCENT_HEX;
   const baseHsl = rgbToHsl(hexToRgb(safeHex));

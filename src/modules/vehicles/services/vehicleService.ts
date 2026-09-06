@@ -5,16 +5,11 @@ import type { VehicleStatus } from "../utils/vehicleOptions";
 export type Vehicle = Tables<"vehicles">;
 
 interface ListVehiclesOptions {
-  /** Catálogo público: solo `status = 'published'`. Admin: todos. */
+  /** Public catalog: only `status = 'published'`. Admin: all. */
   publishedOnly?: boolean;
 }
 
-/**
- * Lista de vehículos de un dealer. El catálogo público pasa
- * `publishedOnly: true`; el panel admin lo omite para ver todos los
- * estados. RLS ya impone lo mismo del lado de la base de datos — este
- * filtro es solo para no traer filas de más, no la autorización real.
- */
+/** RLS already enforces this same restriction; this filter only avoids fetching extra rows. */
 export async function listVehiclesForDealer(
   dealerId: number,
   options: ListVehiclesOptions = {}
@@ -85,7 +80,7 @@ export async function updateVehicle(
   return data;
 }
 
-/** Publicar/despublicar/marcar vendido/archivar — setea `published_at` al publicar. */
+/** Sets `published_at` when publishing. */
 export async function setVehicleStatus(vehicleId: number, status: VehicleStatus): Promise<Vehicle> {
   return updateVehicle(vehicleId, {
     status,

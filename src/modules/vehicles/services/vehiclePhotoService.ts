@@ -19,12 +19,7 @@ export async function listPhotosForVehicle(vehicleId: number): Promise<VehiclePh
   return data;
 }
 
-/**
- * Foto de portada (position 0) de cada vehículo, en un único round-trip —
- * usado por el grid del catálogo público, que necesita una foto por
- * tarjeta pero no la lista completa. Vehículos sin fotos simplemente no
- * aparecen en el resultado.
- */
+/** Cover photo (position 0) per vehicle in a single round-trip, for the catalog grid; vehicles without photos are simply absent from the result. */
 export async function listCoverPhotosByVehicleId(
   vehicleIds: number[]
 ): Promise<Map<number, VehiclePhoto>> {
@@ -44,12 +39,7 @@ export async function listCoverPhotosByVehicleId(
   return new Map(data.map((photo) => [photo.vehicle_id, photo]));
 }
 
-/**
- * Sube una foto al bucket bajo `{dealerId}/{vehicleId}/...` (RLS de
- * `storage.objects` exige que el primer segmento sea un dealer del que el
- * usuario es miembro) y registra la fila en `vehicle_photos` en la
- * siguiente posición libre.
- */
+/** Uploads under `{dealerId}/{vehicleId}/...` — `storage.objects` RLS requires the first path segment to be a dealer the user belongs to. */
 export async function uploadVehiclePhoto(
   dealerId: number,
   vehicleId: number,
@@ -77,7 +67,7 @@ export async function uploadVehiclePhoto(
     .single();
 
   if (insertError) {
-    // La fila no se pudo crear — no dejar el archivo huérfano en storage.
+    // Row insert failed — don't leave the file orphaned in storage.
     await supabase.storage.from(VEHICLE_PHOTOS_BUCKET).remove([storagePath]);
     throw new Error(`No se pudo registrar la foto: ${insertError.message}`);
   }

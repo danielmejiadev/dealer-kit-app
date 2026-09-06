@@ -1,5 +1,4 @@
-/* Bespoke styling that doesn't fit plain Tailwind utilities (aspect-ratio
-   photo box + hover lift) — see AGENTS.md, "Component-specific styling". */
+/* Bespoke styling that doesn't fit plain Tailwind utilities (aspect-ratio photo box + hover lift). */
 .photoBox {
   aspect-ratio: 4 / 3;
   overflow: hidden;

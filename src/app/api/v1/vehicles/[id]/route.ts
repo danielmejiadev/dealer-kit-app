@@ -39,8 +39,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const vehicleId = Number(id);
     const body = (await request.json()) as Record<string, unknown>;
 
-    // Cambio de estado rápido (publicar/despublicar/vender/archivar) desde
-    // la lista admin: el body solo trae `status`, sin el resto del form.
+    // Quick status change from the admin list: body only carries `status`, none of the rest of the form.
     if (Object.keys(body).length === 1 && "status" in body) {
       if (!isValidVehicleStatus(body.status)) {
         return NextResponse.json({ error: "Estado inválido." }, { status: 400 });

@@ -1,8 +1,4 @@
-// Pure request-payload validation for vehicles — no external calls. See
-// AGENTS.md, "utils/". Mirrors the check constraints in
-// supabase/migrations/0001_create_core_schema.sql; RLS + those constraints
-// are still the real enforcement, this only lets api/v1/vehicles respond
-// with a useful 400 instead of a raw Postgres error.
+// Mirrors the check constraints in supabase/migrations/0001_create_core_schema.sql, so api/v1/vehicles can respond with a useful 400 instead of a raw Postgres error.
 import type { TablesInsert, TablesUpdate } from "@/lib/database.types";
 import {
   CLASE_VEHICULO_LABELS,
@@ -40,7 +36,6 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-/** Valida el payload de creación/edición del formulario admin. */
 export function validateVehicleForm(values: VehicleFormValues): VehicleValidationResult {
   const errors: VehicleValidationResult["errors"] = {};
 
@@ -88,7 +83,6 @@ export function isValidVehicleStatus(value: unknown): value is VehicleStatus {
   return typeof value === "string" && (VEHICLE_STATUSES as readonly string[]).includes(value);
 }
 
-/** Mapea el shape del formulario (camelCase) al Insert de Supabase (snake_case). */
 export function vehicleFormValuesToInsert(
   values: VehicleFormValues,
   dealerId: number

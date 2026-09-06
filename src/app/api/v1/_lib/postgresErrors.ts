@@ -1,6 +1,4 @@
-// Los services relanzan el error de Postgres original en `cause` (ver
-// vehicleService.createVehicle/updateVehicle) para que las rutas puedan
-// distinguir violaciones de constraint sin volver a tocar Supabase.
+// Services rethrow the original Postgres error in `cause` so routes can distinguish constraint violations without querying Supabase again.
 const UNIQUE_VIOLATION_CODE = "23505";
 
 export function isUniqueConstraintViolation(error: unknown): boolean {

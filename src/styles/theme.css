@@ -1,6 +1,4 @@
-/* Single entry point for the design kit. globals.css only imports this
-   (plus Tailwind itself) — never authors CSS directly. See AGENTS.md,
-   "Design kit". */
+/* Single entry point for the design kit — globals.css only imports this plus Tailwind, never authors CSS directly. */
 
 @import "./reset.css";
 @import "./tokens/colors.css";
