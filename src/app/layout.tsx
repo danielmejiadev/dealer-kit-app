@@ -15,11 +15,7 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-// Loaded for per-tenant typography (see AGENTS.md, "Per-tenant theming" and
-// styles/tokens/typography.css) — the curated list a dealer's theme.jsonb
-// can pick from, enforced by the dealers_theme_shape check constraint.
-// Nothing in Fase 1 lets a dealer choose one yet; the seeded dealer uses
-// Inter for both, so these three only exercise the fallback path today.
+// The curated font list a dealer's theme.jsonb can pick from; Phase 1 has no UI to choose one yet, so these three only exercise the fallback path.
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
   subsets: ["latin"],

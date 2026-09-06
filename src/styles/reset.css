@@ -1,6 +1,4 @@
-/* Base element reset only — nothing component-specific belongs here.
-   A component's own bespoke styling is a colocated CSS Module next to it,
-   never an addition to this file. See AGENTS.md, "Design kit". */
+/* Base element reset only — a component's bespoke styling belongs in its own colocated CSS Module, never here. */
 
 * {
   box-sizing: border-box;

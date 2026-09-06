@@ -7,11 +7,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
-/**
- * Estado vacío compartido entre el catálogo público y las listas del
- * admin, para que ambos se vean igual en vez de cada uno con su propio
- * estilo. Ver AGENTS.md, "UI component library".
- */
+/** Shared between the public catalog and admin lists so both look the same instead of each inventing its own style. */
 export function EmptyState({ message, action, className }: EmptyStateProps) {
   return (
     <div

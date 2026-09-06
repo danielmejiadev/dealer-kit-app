@@ -17,7 +17,7 @@ export function VehicleCard({ vehicle, photoUrl }: VehicleCardProps) {
     >
       <div className={`${styles.photoBox} bg-surface-2`}>
         {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- bucket público, sin optimización de Next Image por ahora
+          // eslint-disable-next-line @next/next/no-img-element -- public bucket, no Next Image optimization for now
           <img
             src={photoUrl}
             alt={`${vehicle.marca} ${vehicle.linea} ${vehicle.modelo}`}

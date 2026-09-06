@@ -3,10 +3,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 const SKELETON_PHOTO_INDEXES = [0, 1];
 const SKELETON_ATTRIBUTE_INDEXES = [0, 1, 2, 3, 4, 5];
 
-// Fallback de Suspense propio de este segmento — sin esto, heredaría el
-// `loading.tsx` del catálogo (grilla de tarjetas), que no calza con el
-// layout de una ficha individual. Ver
-// node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/loading.md.
+// Without this, the segment would inherit the catalog's loading.tsx (a card grid), which doesn't match this detail layout.
 export default function VehicleDetailLoading() {
   return (
     <article className="mx-auto flex max-w-4xl flex-col gap-6">

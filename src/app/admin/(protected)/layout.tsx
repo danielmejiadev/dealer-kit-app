@@ -4,12 +4,9 @@ import { createServerSupabaseClient } from "@/lib/supabaseClient";
 import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 
-// Gatea todo lo bajo /admin salvo /admin/login (fuera de este route group
-// "(protected)" a propósito). Sin proxy.ts: ver
-// docs/plans/fase-1-catalogo-admin.md, "Fase 0.5 — Decisión importante"
-// (proxy.ts fuerza runtime nodejs y rompe en Cloudflare Workers por
-// cloudflare/workers-sdk#13755, un bug abierto sin resolver). Esto es solo
-// conveniencia de UX — la seguridad real la impone RLS en cada tabla.
+// Gates everything under /admin except /admin/login (deliberately outside this "(protected)" route group). No proxy.ts here: it forces the
+// nodejs runtime and breaks on Cloudflare Workers (cloudflare/workers-sdk#13755, an open unresolved bug) — see
+// docs/plans/fase-1-catalogo-admin.md, "Fase 0.5". This is UX convenience only; RLS on each table is the real security.
 export default async function ProtectedAdminLayout({ children }: { children: ReactNode }) {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.auth.getClaims();

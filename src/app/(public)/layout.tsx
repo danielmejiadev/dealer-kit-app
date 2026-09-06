@@ -3,9 +3,7 @@ import Link from "next/link";
 import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
 import { TenantThemeProvider } from "@/modules/dealer/components/TenantThemeProvider";
 
-// Layout raíz de las rutas públicas del catálogo: resuelve el dealer (Fase
-// 1 es single-tenant, ver dealerService.getCurrentDealer()) y aplica su
-// tema vía TenantThemeProvider — ver AGENTS.md, "Per-tenant theming".
+// Resolves the dealer (Phase 1 is single-tenant) and applies its theme via TenantThemeProvider.
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   const dealer = await getCurrentDealer();
 

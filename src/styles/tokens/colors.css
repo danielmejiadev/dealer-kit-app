@@ -8,16 +8,11 @@
   --color-line: #dbe3ea;
   --color-line-strong: #b9c6d1;
 
-  /* Per-tenant brand color. --tenant-accent / --tenant-accent-ink are set
-     as inline CSS custom properties at the root of each tenant's layout
-     (public catalog + admin panel) — see AGENTS.md, "Per-tenant theming".
-     The fallback below is DealerKit's own default brand color, used
-     wherever there's no tenant in context (e.g. this app's own chrome). */
+  /* --tenant-accent is set inline per tenant's layout; the fallback here is DealerKit's own default when no tenant is in context. */
   --color-accent: var(--tenant-accent, #b8842e);
   --color-accent-ink: var(--tenant-accent-ink, #7a5720);
 
-  /* Semantic, not the accent — status of a vehicle, a form error, a
-     warning banner. Never repurpose these as decoration. */
+  /* Semantic colors for status/errors/warnings — never repurpose as decoration. */
   --color-danger: #b3261e;
   --color-success: #1f7a4d;
   --color-warning: #a15c00;

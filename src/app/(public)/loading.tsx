@@ -2,10 +2,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 const SKELETON_CARD_INDEXES = [0, 1, 2, 3, 4, 5];
 
-// Fallback de Suspense para este segmento mientras VehicleCatalogGrid
-// resuelve dealer + vehículos + fotos en el servidor — convención de
-// Next.js (`loading.js`), no un sistema de loading propio. Ver
-// node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/loading.md.
+// Next.js `loading.js` convention, not a custom loading system — see node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/loading.md.
 export default function CatalogLoading() {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -41,7 +41,7 @@ export function VehiclePhotoUploader({ vehicleId, initialPhotos }: VehiclePhotoU
                 isDeletingThisPhoto && "opacity-50"
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- bucket público, sin optimización de Next Image por ahora */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- public bucket, no Next Image optimization for now */}
               <img
                 src={getVehiclePhotoUrl(photo.storage_path)}
                 alt=""

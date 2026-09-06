@@ -13,9 +13,7 @@ interface ModalProps {
   className?: string;
 }
 
-// Behavior (focus trap, Escape to close, aria-modal, focus return) comes
-// from Base UI's Dialog primitive — this file only supplies our own
-// tokens. See AGENTS.md, "UI component library: Base UI, hand-wrapped".
+// Behavior (focus trap, Escape to close, aria-modal, focus return) comes from Base UI's Dialog primitive; this file only supplies our own tokens.
 export function Modal({ open, onOpenChange, title, description, children, className }: ModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

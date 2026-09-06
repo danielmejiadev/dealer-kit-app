@@ -1,11 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabaseClient";
 
-/**
- * Envía el magic link de acceso al admin. `redirectTo` viene del Route
- * Handler (única capa que ve `NextRequest`, ver AGENTS.md "services/") para
- * construir la URL absoluta de `/auth/callback` según el host de la
- * petición.
- */
+/** `redirectTo` comes from the Route Handler, the only layer that sees `NextRequest` and can build the absolute `/auth/callback` URL. */
 export async function sendMagicLink(email: string, redirectTo: string): Promise<void> {
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithOtp({
@@ -18,12 +13,7 @@ export async function sendMagicLink(email: string, redirectTo: string): Promise<
   }
 }
 
-/**
- * Intercambia el `code` que Supabase agrega al link del correo por una
- * sesión, dejándola en cookies vía el cliente de servidor. Llamado desde
- * `GET /auth/callback` — el único punto que rompe la convención `api/v1` a
- * propósito, porque es un redirect de navegador, no un `fetch()` de un hook.
- */
+/** Exchanges the `code` Supabase appends to the email link for a session, stored in cookies. Called from `GET /auth/callback`. */
 export async function exchangeMagicLinkCode(code: string): Promise<void> {
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);

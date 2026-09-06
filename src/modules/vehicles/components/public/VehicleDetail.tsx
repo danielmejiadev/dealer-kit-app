@@ -9,10 +9,7 @@ interface VehicleDetailProps {
   vehicleId: number;
 }
 
-// Server Component: primera carga de la página de detalle, llama a
-// services/ directo. Un visitante nunca debería llegar aquí para un
-// vehículo no publicado (RLS ya se lo esconde), pero por si acaso lo pide
-// por URL directa, se trata igual que "no existe".
+// RLS already hides unpublished vehicles, but a direct URL guess is still handled as not found rather than trusted.
 export async function VehicleDetail({ vehicleId }: VehicleDetailProps) {
   const vehicle = await getVehicleById(vehicleId);
 
@@ -27,7 +24,7 @@ export async function VehicleDetail({ vehicleId }: VehicleDetailProps) {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {photos.length > 0 ? (
           photos.map((photo) => (
-            // eslint-disable-next-line @next/next/no-img-element -- bucket público, sin optimización de Next Image por ahora
+            // eslint-disable-next-line @next/next/no-img-element -- public bucket, no Next Image optimization for now
             <img
               key={photo.id}
               src={getVehiclePhotoUrl(photo.storage_path)}

@@ -7,7 +7,7 @@ import type { VehicleStatus } from "../utils/vehicleOptions";
 import { VEHICLES_QUERY_KEY } from "./useVehicles";
 import { vehicleQueryKey } from "./useVehicle";
 
-/** Publicar/despublicar/marcar vendido/archivar desde la lista admin, sin abrir el formulario completo. */
+/** Lets the admin list change status inline, without opening the full form. */
 export function useSetVehicleStatus() {
   const queryClient = useQueryClient();
 

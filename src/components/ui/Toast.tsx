@@ -4,11 +4,7 @@ import type { ReactNode } from "react";
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import clsx from "clsx";
 
-// Wrap the app once (in layout.tsx) so any Client Component can call
-// useToast() to show a toast. Behavior (auto-dismiss, aria-live
-// announcement, stacking) comes from Base UI's Toast primitive — this
-// file only supplies our own tokens. See AGENTS.md, "UI component
-// library: Base UI, hand-wrapped".
+// Wrap the app once (in layout.tsx) so any Client Component can call useToast(). Behavior comes from Base UI's Toast primitive; this file only supplies our own tokens.
 export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastPrimitive.Provider>
