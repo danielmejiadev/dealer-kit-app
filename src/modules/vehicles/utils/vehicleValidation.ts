@@ -12,9 +12,10 @@ import {
   type VehicleStatus,
 } from "./vehicleOptions";
 
-const PLACA_PATTERN = /^[A-Z]{3}\d{2}[A-Z0-9]$/;
-const CURRENT_YEAR = new Date().getFullYear();
-const MIN_MODEL_YEAR = 1980;
+// Exported so VehicleForm can reflect the same rules as register() options.
+export const PLACA_PATTERN = /^[A-Z]{3}\d{2}[A-Z0-9]$/;
+export const CURRENT_YEAR = new Date().getFullYear();
+export const MIN_MODEL_YEAR = 1980;
 
 export interface VehicleFormValues {
   placa: string;
