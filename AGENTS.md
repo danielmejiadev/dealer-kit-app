@@ -77,11 +77,14 @@ Per-folder rules:
   layer allowed to call Supabase or the AI provider. Business rules live
   here, using clients from `lib/`. No JSX, no `NextRequest`/`NextResponse`.
 - **`lib/`** — low-level configured clients (`lib/supabaseClient.ts`, a
-  future AI client), plus any Route-Handler-only glue that several
-  `route.ts` files under the same path share (an auth guard, an
-  error-response shape adapter) — kept at `lib/api/v1/<segment>/...`,
-  mirroring the route path (e.g. `lib/api/v1/vehicles/requireDealerMember.ts`).
-  No business logic either way.
+  future AI client), plus any Route-Handler-only glue several `route.ts`
+  files share (an auth guard, an error-response shape adapter). Shared
+  across every `api/v1/**` segment (e.g. `lib/api/v1/requireDealerMember.ts`,
+  used by both `api/v1/vehicles/**` and `api/v1/dealer`) it sits directly
+  under `lib/api/v1/`; specific to one segment (e.g.
+  `lib/api/v1/vehicles/postgresErrors.ts`) it's nested under
+  `lib/api/v1/<segment>/...`, mirroring the route path. No business logic
+  either way.
 - **`hooks/`** — React Query hooks that call Route Handlers via `fetch`.
   No business logic, no direct Supabase/AI calls.
 - **`utils/`** — pure, deterministic helpers with no external calls
@@ -142,22 +145,42 @@ src/app/globals.css   — only @imports: Tailwind + styles/theme.css.
 
 ### Per-tenant theming
 
-Only the tenant's brand color is dynamic (per the product's "nombre +
-color" personalization) — everything else in the design kit is fixed and
-shared across tenants. Mechanism:
+Only the tenant's brand color and its two curated fonts are dynamic (per the
+product's "nombre + color" personalization) — everything else in the design
+kit is fixed and shared across tenants. Mechanism:
 
 - `tokens/colors.css` declares `--color-accent: var(--tenant-accent, #b8842e)`
   in `@theme inline` — build-time wiring, with DealerKit's own default
   color as the fallback when no tenant is in context.
-- The root Server Component layout for a tenant's routes (public catalog
-  and admin panel) fetches the tenant via `services/`, derives a safe
-  accent + contrasting text color in `utils/color.ts` (pure, no external
-  calls), and sets `--tenant-accent` via inline `style` on the wrapping
-  element.
-- Every component below just uses `bg-accent`/`text-accent` like any other
-  Tailwind class — never aware the value is dynamic.
-- Out of scope for v1: dark mode for tenant catalogs, a full theme builder.
-  Only name + one brand color, matching the roadmap.
+- **Dealer resolution differs by area, not by mechanism.** The public
+  catalog (`app/(public)/layout.tsx` and its pages) resolves the dealer by
+  subdomain: `modules/dealer/utils/hostname.ts` extracts the slug from the
+  `host` header, falling back to `slug='default'` with no subdomain and
+  404ing on a subdomain that matches no dealer
+  (`dealerService.getDealerForHost`). The admin panel
+  (`app/admin/(protected)/layout.tsx`, `requireDealerMember`) instead
+  resolves by the authenticated user's own `dealer_members` row
+  (`dealerService.getDealerForMember`), regardless of hostname — an owner
+  sees their own dealer from any domain. Neither area's components resolve
+  the dealer themselves: it's always received as a prop from the
+  layout/page above, which re-resolves it once per request (deduped via
+  `cache()`, since a layout can't hand props to the page.tsx it wraps).
+- The root Server Component layout for a tenant's routes fetches the
+  dealer this way, derives a safe accent + contrasting text color in
+  `utils/color.ts` (pure, no external calls), and sets `--tenant-accent`
+  (plus `--tenant-font-heading`/`-body`) via inline `style` on the
+  wrapping element (`TenantThemeProvider`).
+- Every component below just uses `bg-accent`/`text-accent`/`font-heading`
+  like any other Tailwind class — never aware the value is dynamic.
+- A dealer's own owner edits their `theme` (accent color + heading/body
+  font, from the curated list in `dealer/utils/theme.ts`) from
+  `/admin/configuracion` — `DealerThemeForm` → `PATCH /api/v1/dealer` →
+  `dealerService.updateDealerTheme()`. RLS's `dealers_update_members`
+  policy is what actually authorizes the write; the route just resolves
+  which dealer via `requireDealerMember()`.
+- Out of scope for v1: dark mode for tenant catalogs, a full theme builder
+  beyond the curated color + font pickers, and custom domains beyond the
+  subdomain scheme above.
 
 ### UI component library: Base UI, hand-wrapped (no shadcn CLI)
 
