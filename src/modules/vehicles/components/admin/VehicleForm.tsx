@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -9,8 +9,10 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
+import { formatCOP } from "@/utils/currency";
 import { useCreateVehicle } from "../../hooks/useCreateVehicle";
 import { useUpdateVehicle } from "../../hooks/useUpdateVehicle";
+import { useSuggestVehiclePrice } from "../../hooks/useSuggestVehiclePrice";
 import {
   CLASE_VEHICULO_OPTIONS,
   COMBUSTIBLE_OPTIONS,
@@ -20,31 +22,32 @@ import {
   type Transmision,
 } from "../../utils/vehicleOptions";
 import { vehicleFormSchema, type VehicleFormInput, type VehicleFormValues } from "../../utils/vehicleFormSchema";
+import { vehicleFormValuesToPriceSuggestionInput, type PriceSuggestionResult } from "../../utils/priceSuggestionSchema";
 import type { Vehicle } from "../../services/vehicleService";
 
 interface VehicleFormProps {
   mode: "create" | "edit";
   vehicle?: Vehicle;
+  /** Pre-fills a blank form (create mode only) from foto→ficha extraction — never used together with `vehicle`. */
+  initialValues?: Partial<VehicleFormInput>;
 }
 
-function vehicleToFormValues(vehicle?: Vehicle): VehicleFormInput {
-  if (!vehicle) {
-    return {
-      placa: "",
-      marca: "",
-      linea: "",
-      modelo: new Date().getFullYear(),
-      color: "",
-      cilindraje: null,
-      claseVehiculo: "automovil",
-      combustible: "gasolina",
-      transmision: "manual",
-      kilometraje: 0,
-      precioCop: 0,
-      descripcion: "",
-    };
-  }
+const BLANK_VEHICLE_FORM_VALUES: VehicleFormInput = {
+  placa: "",
+  marca: "",
+  linea: "",
+  modelo: new Date().getFullYear(),
+  color: "",
+  cilindraje: null,
+  claseVehiculo: "automovil",
+  combustible: "gasolina",
+  transmision: "manual",
+  kilometraje: 0,
+  precioCop: 0,
+  descripcion: "",
+};
 
+function vehicleToFormValues(vehicle: Vehicle): VehicleFormInput {
   return {
     placa: vehicle.placa,
     marca: vehicle.marca,
@@ -63,6 +66,11 @@ function vehicleToFormValues(vehicle?: Vehicle): VehicleFormInput {
   };
 }
 
+function buildDefaultFormValues(vehicle?: Vehicle, initialValues?: Partial<VehicleFormInput>): VehicleFormInput {
+  if (vehicle) return vehicleToFormValues(vehicle);
+  return { ...BLANK_VEHICLE_FORM_VALUES, ...initialValues };
+}
+
 // Preprocessed numeric fields report as `unknown` on the input side, which
 // widens their formState.errors entry beyond plain FieldError — all we need
 // from it here is the message, regardless of shape.
@@ -71,23 +79,41 @@ function fieldErrorMessage(clientError?: { message?: string }, serverMessage?: s
 }
 
 /** Crear/editar comparten formulario y validación — solo cambia a qué hook de mutación llaman. */
-export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
+export function VehicleForm({ mode, vehicle, initialValues }: VehicleFormProps) {
   const router = useRouter();
   const {
     register,
     control,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<VehicleFormInput, unknown, VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: vehicleToFormValues(vehicle),
+    defaultValues: buildDefaultFormValues(vehicle, initialValues),
   });
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle(vehicle?.id ?? -1);
   const mutation = mode === "create" ? createVehicleMutation : updateVehicleMutation;
   const fieldErrors = mutation.error?.fieldErrors;
 
+  const suggestPriceMutation = useSuggestVehiclePrice();
+  const [priceSuggestion, setPriceSuggestion] = useState<PriceSuggestionResult | null>(null);
+
   const placaRegistration = register("placa");
+
+  function handleSuggestPrice() {
+    setPriceSuggestion(null);
+    suggestPriceMutation.mutate(vehicleFormValuesToPriceSuggestionInput(getValues()), {
+      onSuccess: setPriceSuggestion,
+    });
+  }
+
+  function applySuggestedPrice() {
+    if (!priceSuggestion) return;
+    setValue("precioCop", priceSuggestion.suggestedPriceCop, { shouldValidate: true, shouldDirty: true });
+    setPriceSuggestion(null);
+  }
 
   function onSubmit(formValues: VehicleFormValues) {
     mutation.mutate(
@@ -164,9 +190,42 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
               <Input type="number" {...register("kilometraje")} />
             </Field>
             <Field label="Precio (COP)" error={fieldErrorMessage(errors.precioCop, fieldErrors?.precioCop)}>
-              <Input type="number" {...register("precioCop")} />
+              <div className="flex gap-2">
+                <Input type="number" {...register("precioCop")} />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleSuggestPrice}
+                  disabled={suggestPriceMutation.isPending}
+                  className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap"
+                >
+                  {suggestPriceMutation.isPending ? <Spinner size="sm" /> : null}
+                  {suggestPriceMutation.isPending ? "Buscando..." : "Sugerir precio"}
+                </Button>
+              </div>
             </Field>
           </div>
+
+          {suggestPriceMutation.isError ? (
+            <p className="text-sm text-danger">{suggestPriceMutation.error.message}</p>
+          ) : null}
+
+          {priceSuggestion ? (
+            <div className="flex flex-col gap-2 rounded-md border border-line bg-surface-2 p-3.5 text-sm">
+              <p className="text-ink">
+                Precio sugerido por la IA: <strong>{formatCOP(priceSuggestion.suggestedPriceCop)}</strong>
+              </p>
+              <p className="text-ink-dim">{priceSuggestion.rationale}</p>
+              <div className="flex gap-2">
+                <Button type="button" variant="secondary" onClick={applySuggestedPrice}>
+                  Usar este precio
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setPriceSuggestion(null)}>
+                  Descartar
+                </Button>
+              </div>
+            </div>
+          ) : null}
 
           <Field label="Descripción" error={fieldErrorMessage(errors.descripcion, fieldErrors?.descripcion)}>
             <textarea

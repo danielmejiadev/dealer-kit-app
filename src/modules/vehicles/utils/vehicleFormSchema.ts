@@ -32,7 +32,7 @@ function requiredText(message: string) {
 // already carry a number. Empty/null/undefined must become undefined/null
 // here rather than coerce through Number(), which turns both "" and null
 // into 0 and would silently pass a "required" or "positive" check.
-function toNumberOrUndefined(rawValue: unknown) {
+export function toNumberOrUndefined(rawValue: unknown) {
   if (rawValue === "" || rawValue === null || rawValue === undefined) return undefined;
   return typeof rawValue === "number" ? rawValue : Number(rawValue);
 }

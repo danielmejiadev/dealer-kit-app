@@ -76,8 +76,8 @@ Per-folder rules:
 - **`services/`** (module-local or `src/services/` if shared) — the only
   layer allowed to call Supabase or the AI provider. Business rules live
   here, using clients from `lib/`. No JSX, no `NextRequest`/`NextResponse`.
-- **`lib/`** — low-level configured clients (`lib/supabaseClient.ts`, a
-  future AI client), plus any Route-Handler-only glue several `route.ts`
+- **`lib/`** — low-level configured clients (`lib/supabaseClient.ts`,
+  `lib/anthropicClient.ts`), plus any Route-Handler-only glue several `route.ts`
   files share (an auth guard, an error-response shape adapter). Shared
   across every `api/v1/**` segment (e.g. `lib/api/v1/requireDealerMember.ts`,
   used by both `api/v1/vehicles/**` and `api/v1/dealer`) it sits directly
