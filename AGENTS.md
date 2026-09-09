@@ -210,12 +210,16 @@ kit is fixed and shared across tenants. Mechanism:
 - **Commits and PRs are always the user's own**, never a separate
   identity: git author/committer must resolve to the user's own
   configured `user.name`/`user.email` (never edit git config to something
-  else), and any `gh` action (`gh pr create`, etc.) must run under the
-  user's own GitHub account (`danielmejiadev`). Before pushing or creating
-  a PR, check `gh auth status` — if the active account isn't
-  `danielmejiadev`, stop and tell the user to switch it
-  (`gh auth switch`/`gh auth login`) instead of proceeding, retrying under
-  another account, or working around it some other way.
+  else). This repo's remote uses an SSH alias
+  (`github.com-danielmejiadev`) with its own key, so a plain `git push` is
+  **not** gated by the `gh` CLI's active account — push freely once a
+  branch is ready. Only an actual `gh` **API** action (`gh pr create`,
+  `gh pr merge`, etc.) needs the right account: before one of those, check
+  `gh auth status` — if the active account isn't `danielmejiadev`, stop
+  and tell the user to switch it (`gh auth switch`/`gh auth login`)
+  instead of proceeding, retrying under another account, or working
+  around it some other way. Don't extend this caution to plain `git`
+  commands (`push`, `fetch`, `pull`) — they aren't `gh` actions.
 - **Commit messages and PR titles/descriptions are always in English**
   (code comments are English too — see "Project coding conventions"
   above — but this repo's prose docs, like this file, stay in Spanish).
