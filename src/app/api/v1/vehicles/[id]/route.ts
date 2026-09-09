@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { requireDealerMember, authGuardErrorResponse } from "../../_lib/requireDealerMember";
-import { isUniqueConstraintViolation } from "../../_lib/postgresErrors";
+import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/vehicles/requireDealerMember";
+import { isUniqueConstraintViolation } from "@/lib/api/v1/vehicles/postgresErrors";
 import { deleteVehicle, getVehicleById, setVehicleStatus, updateVehicle } from "@/modules/vehicles/services/vehicleService";
 import {
   isValidVehicleStatus,

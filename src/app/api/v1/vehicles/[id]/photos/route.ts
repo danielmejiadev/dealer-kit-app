@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { requireDealerMember, authGuardErrorResponse } from "../../../_lib/requireDealerMember";
+import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/vehicles/requireDealerMember";
 import { listPhotosForVehicle, uploadVehiclePhoto } from "@/modules/vehicles/services/vehiclePhotoService";
 
 interface RouteContext {
