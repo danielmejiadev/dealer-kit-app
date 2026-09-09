@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError, fetchJson } from "@/lib/apiClient";
 import type { Vehicle } from "../services/vehicleService";
-import type { VehicleFormValues } from "../utils/vehicleValidation";
+import type { VehicleFormValues } from "../utils/vehicleFormSchema";
 import { VEHICLES_QUERY_KEY } from "./useVehicles";
 
 export function useCreateVehicle() {

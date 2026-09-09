@@ -2,11 +2,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/vehicles/requireDealerMember";
 import { isUniqueConstraintViolation } from "@/lib/api/v1/vehicles/postgresErrors";
 import { createVehicle, listVehiclesForDealer } from "@/modules/vehicles/services/vehicleService";
-import {
-  validateVehicleForm,
-  vehicleFormValuesToInsert,
-  type VehicleFormValues,
-} from "@/modules/vehicles/utils/vehicleValidation";
+import { vehicleFormSchema, vehicleFormValuesToInsert } from "@/modules/vehicles/utils/vehicleFormSchema";
+import { fieldErrorsResponse } from "@/lib/api/v1/vehicles/fieldErrorsResponse";
 
 export async function GET() {
   try {
@@ -24,14 +21,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { dealer } = await requireDealerMember();
-    const values = (await request.json()) as VehicleFormValues;
-    const { valid, errors } = validateVehicleForm(values);
+    const body = await request.json();
+    const parsed = vehicleFormSchema.safeParse(body);
 
-    if (!valid) {
-      return NextResponse.json({ error: "Datos inválidos.", fieldErrors: errors }, { status: 400 });
+    if (!parsed.success) {
+      return fieldErrorsResponse(parsed.error);
     }
 
-    const vehicle = await createVehicle(vehicleFormValuesToInsert(values, dealer.id));
+    const vehicle = await createVehicle(vehicleFormValuesToInsert(parsed.data, dealer.id));
     return NextResponse.json(vehicle, { status: 201 });
   } catch (error) {
     const guardResponse = authGuardErrorResponse(error);
