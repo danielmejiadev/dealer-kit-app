@@ -59,6 +59,11 @@ Two flows, both ending in `services/`, never crossing into each other:
 
 Per-folder rules:
 
+- **`app/` holds only pages, layouts, and Route Handlers** — `page.tsx`,
+  `layout.tsx`, `loading.tsx`, `route.ts`, and Next's other special files.
+  Never a plain helper file or a private (`_folder`) subfolder for shared
+  code, even route-handler-only glue — that goes in `lib/` instead (see
+  below), mirroring the route's path.
 - **`app/**/page.tsx`** — renders one component from the matching module.
   No markup, no `await` to a service, no business logic in the page file.
 - **`app/api/v1/**/route.ts`** — thin: auth check, parse/validate the
@@ -71,8 +76,12 @@ Per-folder rules:
 - **`services/`** (module-local or `src/services/` if shared) — the only
   layer allowed to call Supabase or the AI provider. Business rules live
   here, using clients from `lib/`. No JSX, no `NextRequest`/`NextResponse`.
-- **`lib/`** — low-level configured clients only (`lib/supabaseClient.ts`,
-  a future AI client). No business logic.
+- **`lib/`** — low-level configured clients (`lib/supabaseClient.ts`, a
+  future AI client), plus any Route-Handler-only glue that several
+  `route.ts` files under the same path share (an auth guard, an
+  error-response shape adapter) — kept at `lib/api/v1/<segment>/...`,
+  mirroring the route path (e.g. `lib/api/v1/vehicles/requireDealerMember.ts`).
+  No business logic either way.
 - **`hooks/`** — React Query hooks that call Route Handlers via `fetch`.
   No business logic, no direct Supabase/AI calls.
 - **`utils/`** — pure, deterministic helpers with no external calls

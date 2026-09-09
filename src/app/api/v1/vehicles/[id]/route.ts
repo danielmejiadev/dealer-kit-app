@@ -1,13 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { requireDealerMember, authGuardErrorResponse } from "../../_lib/requireDealerMember";
-import { isUniqueConstraintViolation } from "../../_lib/postgresErrors";
+import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/vehicles/requireDealerMember";
+import { isUniqueConstraintViolation } from "@/lib/api/v1/vehicles/postgresErrors";
 import { deleteVehicle, getVehicleById, setVehicleStatus, updateVehicle } from "@/modules/vehicles/services/vehicleService";
 import {
   isValidVehicleStatus,
-  validateVehicleForm,
+  vehicleFormSchema,
   vehicleFormValuesToUpdate,
-  type VehicleFormValues,
-} from "@/modules/vehicles/utils/vehicleValidation";
+} from "@/modules/vehicles/utils/vehicleFormSchema";
+import { fieldErrorsResponse } from "@/lib/api/v1/vehicles/fieldErrorsResponse";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -48,14 +48,13 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json(vehicle);
     }
 
-    const values = body as unknown as VehicleFormValues;
-    const { valid, errors } = validateVehicleForm(values);
+    const parsed = vehicleFormSchema.safeParse(body);
 
-    if (!valid) {
-      return NextResponse.json({ error: "Datos inválidos.", fieldErrors: errors }, { status: 400 });
+    if (!parsed.success) {
+      return fieldErrorsResponse(parsed.error);
     }
 
-    const vehicle = await updateVehicle(vehicleId, vehicleFormValuesToUpdate(values));
+    const vehicle = await updateVehicle(vehicleId, vehicleFormValuesToUpdate(parsed.data));
     return NextResponse.json(vehicle);
   } catch (error) {
     const guardResponse = authGuardErrorResponse(error);

@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm, type FieldError } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
@@ -10,8 +11,15 @@ import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
 import { useCreateVehicle } from "../../hooks/useCreateVehicle";
 import { useUpdateVehicle } from "../../hooks/useUpdateVehicle";
-import { CLASE_VEHICULO_OPTIONS, COMBUSTIBLE_OPTIONS, TRANSMISION_OPTIONS } from "../../utils/vehicleOptions";
-import { CURRENT_YEAR, MIN_MODEL_YEAR, PLACA_PATTERN, type VehicleFormValues } from "../../utils/vehicleValidation";
+import {
+  CLASE_VEHICULO_OPTIONS,
+  COMBUSTIBLE_OPTIONS,
+  TRANSMISION_OPTIONS,
+  type ClaseVehiculo,
+  type Combustible,
+  type Transmision,
+} from "../../utils/vehicleOptions";
+import { vehicleFormSchema, type VehicleFormInput, type VehicleFormValues } from "../../utils/vehicleFormSchema";
 import type { Vehicle } from "../../services/vehicleService";
 
 interface VehicleFormProps {
@@ -19,7 +27,7 @@ interface VehicleFormProps {
   vehicle?: Vehicle;
 }
 
-function vehicleToFormValues(vehicle?: Vehicle): VehicleFormValues {
+function vehicleToFormValues(vehicle?: Vehicle): VehicleFormInput {
   if (!vehicle) {
     return {
       placa: "",
@@ -44,16 +52,21 @@ function vehicleToFormValues(vehicle?: Vehicle): VehicleFormValues {
     modelo: vehicle.modelo,
     color: vehicle.color,
     cilindraje: vehicle.cilindraje,
-    claseVehiculo: vehicle.clase_vehiculo,
-    combustible: vehicle.combustible,
-    transmision: vehicle.transmision,
+    // The check constraints guarantee these text columns hold a valid enum
+    // value; Supabase's generated types just don't narrow them that far.
+    claseVehiculo: vehicle.clase_vehiculo as ClaseVehiculo,
+    combustible: vehicle.combustible as Combustible,
+    transmision: vehicle.transmision as Transmision,
     kilometraje: vehicle.kilometraje,
     precioCop: vehicle.precio_cop,
     descripcion: vehicle.descripcion,
   };
 }
 
-function fieldErrorMessage(clientError?: FieldError, serverMessage?: string): string | undefined {
+// Preprocessed numeric fields report as `unknown` on the input side, which
+// widens their formState.errors entry beyond plain FieldError — all we need
+// from it here is the message, regardless of shape.
+function fieldErrorMessage(clientError?: { message?: string }, serverMessage?: string): string | undefined {
   return clientError?.message ?? serverMessage;
 }
 
@@ -65,17 +78,16 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<VehicleFormValues>({ defaultValues: vehicleToFormValues(vehicle) });
+  } = useForm<VehicleFormInput, unknown, VehicleFormValues>({
+    resolver: zodResolver(vehicleFormSchema),
+    defaultValues: vehicleToFormValues(vehicle),
+  });
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle(vehicle?.id ?? -1);
   const mutation = mode === "create" ? createVehicleMutation : updateVehicleMutation;
   const fieldErrors = mutation.error?.fieldErrors;
 
-  const placaRegistration = register("placa", {
-    required: "La placa es obligatoria.",
-    validate: (value) =>
-      PLACA_PATTERN.test(value.toUpperCase()) || "La placa debe tener el formato ABC123 o ABC12A.",
-  });
+  const placaRegistration = register("placa");
 
   function onSubmit(formValues: VehicleFormValues) {
     mutation.mutate(
@@ -104,48 +116,19 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
               />
             </Field>
             <Field label="Marca" error={fieldErrorMessage(errors.marca, fieldErrors?.marca)}>
-              <Input {...register("marca", { required: "La marca es obligatoria." })} />
+              <Input {...register("marca")} />
             </Field>
             <Field label="Línea" error={fieldErrorMessage(errors.linea, fieldErrors?.linea)}>
-              <Input {...register("linea", { required: "La línea es obligatoria." })} />
+              <Input {...register("linea")} />
             </Field>
             <Field label="Modelo (año)" error={fieldErrorMessage(errors.modelo, fieldErrors?.modelo)}>
-              <Input
-                type="number"
-                {...register("modelo", {
-                  required: "El modelo es obligatorio.",
-                  valueAsNumber: true,
-                  min: {
-                    value: MIN_MODEL_YEAR,
-                    message: `El modelo debe ser un año entre ${MIN_MODEL_YEAR} y ${CURRENT_YEAR + 1}.`,
-                  },
-                  max: {
-                    value: CURRENT_YEAR + 1,
-                    message: `El modelo debe ser un año entre ${MIN_MODEL_YEAR} y ${CURRENT_YEAR + 1}.`,
-                  },
-                })}
-              />
+              <Input type="number" {...register("modelo")} />
             </Field>
             <Field label="Color" error={fieldErrorMessage(errors.color, fieldErrors?.color)}>
-              <Input {...register("color", { required: "El color es obligatorio." })} />
+              <Input {...register("color")} />
             </Field>
             <Field label="Cilindraje (vacío si es eléctrico)" error={fieldErrorMessage(errors.cilindraje, fieldErrors?.cilindraje)}>
-              <Input
-                type="number"
-                {...register("cilindraje", {
-                  // An untouched field reports its raw defaultValues null; a cleared
-                  // input reports "". Number(null) is 0, so null needs its own check.
-                  setValueAs: (rawValue) => {
-                    if (rawValue === "" || rawValue === null || rawValue === undefined) return null;
-                    const numericValue = Number(rawValue);
-                    return Number.isNaN(numericValue) ? null : numericValue;
-                  },
-                  validate: (value) =>
-                    value === null ||
-                    (Number.isFinite(value) && value > 0) ||
-                    "El cilindraje debe ser un número positivo, o dejarse vacío si es eléctrico.",
-                })}
-              />
+              <Input type="number" {...register("cilindraje")} />
             </Field>
             <Field
               label="Clase de vehículo"
@@ -154,7 +137,6 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
               <Controller
                 control={control}
                 name="claseVehiculo"
-                rules={{ required: true }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange} options={CLASE_VEHICULO_OPTIONS} />
                 )}
@@ -164,7 +146,6 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
               <Controller
                 control={control}
                 name="combustible"
-                rules={{ required: true }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange} options={COMBUSTIBLE_OPTIONS} />
                 )}
@@ -174,31 +155,16 @@ export function VehicleForm({ mode, vehicle }: VehicleFormProps) {
               <Controller
                 control={control}
                 name="transmision"
-                rules={{ required: true }}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange} options={TRANSMISION_OPTIONS} />
                 )}
               />
             </Field>
             <Field label="Kilometraje" error={fieldErrorMessage(errors.kilometraje, fieldErrors?.kilometraje)}>
-              <Input
-                type="number"
-                {...register("kilometraje", {
-                  required: "El kilometraje es obligatorio.",
-                  valueAsNumber: true,
-                  min: { value: 0, message: "El kilometraje debe ser un número mayor o igual a cero." },
-                })}
-              />
+              <Input type="number" {...register("kilometraje")} />
             </Field>
             <Field label="Precio (COP)" error={fieldErrorMessage(errors.precioCop, fieldErrors?.precioCop)}>
-              <Input
-                type="number"
-                {...register("precioCop", {
-                  required: "El precio es obligatorio.",
-                  valueAsNumber: true,
-                  validate: (value) => (Number.isFinite(value) && value > 0) || "El precio debe ser un número positivo.",
-                })}
-              />
+              <Input type="number" {...register("precioCop")} />
             </Field>
           </div>
 
