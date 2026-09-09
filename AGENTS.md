@@ -14,13 +14,20 @@
   (formatting, slugs, mock data, event-name constants) belongs in `utils/`,
   grouped by what it relates to (e.g. `utils/currency.ts` for COP
   formatting), not written inline inside a component body.
-- **Forms use `react-hook-form`** for field state, validation, and
-  submission — no hand-rolled `useState` per field. Register inputs with
-  `register()` (or `Controller` for the Base UI-wrapped `Select`), surface
-  per-field errors from `formState.errors` next to each field, and drive
-  submission through `handleSubmit()`. Applies to any form beyond a single
-  input (e.g. `VehicleForm`) — a trivial one-field form (e.g. `LoginForm`'s
-  email) can stay plain.
+- **Forms use `react-hook-form` + `zod`** for field state, validation, and
+  submission — no hand-rolled `useState` per field, and no validation
+  logic duplicated between client and server. One `zod` schema per form
+  (colocated with the form, e.g. `vehicleFormSchema` next to
+  `VehicleForm`) is the single source of truth: `react-hook-form` uses it
+  via `zodResolver()` on the client, and the matching `api/v1/**` Route
+  Handler reuses the *same* schema (`.safeParse()`) instead of writing
+  separate checks. The schema also gives the form's TypeScript type via
+  `z.infer<typeof schema>` — don't hand-write a parallel `interface` for
+  it. Register inputs with `register()` (or `Controller` for the Base
+  UI-wrapped `Select`), surface per-field errors from `formState.errors`
+  next to each field, and drive submission through `handleSubmit()`.
+  Applies to any form beyond a single input (e.g. `VehicleForm`) — a
+  trivial one-field form (e.g. `LoginForm`'s email) can stay plain.
 - **Server data fetching uses React Query** (`@tanstack/react-query`) for
   anything a Client Component fetches after first load — no bare
   `useEffect` + `fetch` + `useState`. Wrap the fetcher (from `hooks/`, see
