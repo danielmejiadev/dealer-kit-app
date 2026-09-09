@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/vehicles/requireDealerMember";
+import { requireDealerMember, authGuardErrorResponse } from "@/lib/api/v1/requireDealerMember";
 import { isUniqueConstraintViolation } from "@/lib/api/v1/vehicles/postgresErrors";
 import { deleteVehicle, getVehicleById, setVehicleStatus, updateVehicle } from "@/modules/vehicles/services/vehicleService";
 import {
@@ -7,7 +7,7 @@ import {
   vehicleFormSchema,
   vehicleFormValuesToUpdate,
 } from "@/modules/vehicles/utils/vehicleFormSchema";
-import { fieldErrorsResponse } from "@/lib/api/v1/vehicles/fieldErrorsResponse";
+import { fieldErrorsResponse } from "@/lib/api/v1/fieldErrorsResponse";
 
 interface RouteContext {
   params: Promise<{ id: string }>;

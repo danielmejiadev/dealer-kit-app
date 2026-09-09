@@ -1,11 +1,19 @@
 import type { ReactNode } from "react";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
+import { getDealerForHost } from "@/modules/dealer/services/dealerService";
 import { TenantThemeProvider } from "@/modules/dealer/components/TenantThemeProvider";
 
-// Resolves the dealer (Phase 1 is single-tenant) and applies its theme via TenantThemeProvider.
+// Resolves the dealer by subdomain (see modules/dealer/utils/hostname.ts): no
+// subdomain falls back to slug='default', an unmatched one 404s.
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const dealer = await getCurrentDealer();
+  const requestHeaders = await headers();
+  const dealer = await getDealerForHost(requestHeaders.get("host") ?? "");
+
+  if (!dealer) {
+    notFound();
+  }
 
   return (
     <TenantThemeProvider dealer={dealer}>

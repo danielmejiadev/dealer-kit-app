@@ -1,4 +1,5 @@
 // The dealers_theme_shape check constraint guarantees a valid shape on write; this is a defense-in-depth re-check on read.
+import type { SelectOption } from "@/components/ui/Select";
 
 export type FontSlug = "inter" | "ibm-plex-sans" | "sora" | "fraunces";
 
@@ -9,9 +10,26 @@ export interface DealerTheme {
 }
 
 // Matches dealers_theme_shape: bodyFont excludes Fraunces, a display serif reserved for headings.
-const HEADING_FONTS: readonly FontSlug[] = ["inter", "ibm-plex-sans", "sora", "fraunces"];
-const BODY_FONTS: readonly FontSlug[] = ["inter", "ibm-plex-sans", "sora"];
-const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+export const HEADING_FONTS: readonly FontSlug[] = ["inter", "ibm-plex-sans", "sora", "fraunces"];
+export const BODY_FONTS: readonly FontSlug[] = ["inter", "ibm-plex-sans", "sora"];
+export const HEX_COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+
+export const FONT_LABELS: Record<FontSlug, string> = {
+  inter: "Inter",
+  "ibm-plex-sans": "IBM Plex Sans",
+  sora: "Sora",
+  fraunces: "Fraunces",
+};
+
+export const HEADING_FONT_OPTIONS: SelectOption[] = HEADING_FONTS.map((fontSlug) => ({
+  value: fontSlug,
+  label: FONT_LABELS[fontSlug],
+}));
+
+export const BODY_FONT_OPTIONS: SelectOption[] = BODY_FONTS.map((fontSlug) => ({
+  value: fontSlug,
+  label: FONT_LABELS[fontSlug],
+}));
 
 export const DEFAULT_DEALER_THEME: DealerTheme = {
   accentColorHex: "#b8842e",

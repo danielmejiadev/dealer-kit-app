@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabaseClient";
-import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
+import { getDealerForMember } from "@/modules/dealer/services/dealerService";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 
 // Gates everything under /admin except /admin/login (deliberately outside this "(protected)" route group). No proxy.ts here: it forces the
@@ -15,13 +16,23 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
     redirect("/admin/login");
   }
 
-  const dealer = await getCurrentDealer();
+  // Admin resolves by membership, not hostname: a dealer's owner always sees their own dealer here, regardless of the domain they entered from.
+  const dealer = await getDealerForMember(data.claims.sub);
+
+  if (!dealer) {
+    notFound();
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
       <header className="flex items-center justify-between border-b border-line bg-surface px-6 py-4">
         <span className="font-heading text-lg font-semibold text-ink">{dealer.name} · Admin</span>
-        <LogoutButton />
+        <nav className="flex items-center gap-4">
+          <Link href="/admin/configuracion" className="text-sm text-ink-dim hover:text-ink">
+            Personalización
+          </Link>
+          <LogoutButton />
+        </nav>
       </header>
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8">{children}</main>
     </div>

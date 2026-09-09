@@ -7,13 +7,16 @@ import { formatCOP, formatKilometraje } from "@/utils/currency";
 
 interface VehicleDetailProps {
   vehicleId: number;
+  dealerId: number;
 }
 
-// RLS already hides unpublished vehicles, but a direct URL guess is still handled as not found rather than trusted.
-export async function VehicleDetail({ vehicleId }: VehicleDetailProps) {
+// RLS already hides unpublished vehicles, but a direct URL guess is still
+// handled as not found rather than trusted — including a vehicle id that
+// belongs to a different dealer's subdomain.
+export async function VehicleDetail({ vehicleId, dealerId }: VehicleDetailProps) {
   const vehicle = await getVehicleById(vehicleId);
 
-  if (!vehicle || vehicle.status !== "published") {
+  if (!vehicle || vehicle.status !== "published" || vehicle.dealer_id !== dealerId) {
     notFound();
   }
 
