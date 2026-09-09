@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabaseClient";
 import {
-  getCurrentDealer,
-  getCurrentDealerMember,
+  getDealerById,
+  getDealerMembership,
   type Dealer,
   type DealerMember,
 } from "@/modules/dealer/services/dealerService";
@@ -32,10 +32,16 @@ export async function requireDealerMember(): Promise<AuthorizedDealerContext> {
     throw new AuthGuardError(401, "No autenticado.");
   }
 
-  const dealer = await getCurrentDealer();
-  const dealerMember = await getCurrentDealerMember(data.claims.sub);
+  // Membership first, dealer second: which dealer a user can act on comes from their own membership row, not the other way around.
+  const dealerMember = await getDealerMembership(data.claims.sub);
 
   if (!dealerMember) {
+    throw new AuthGuardError(403, "No tienes acceso a este dealer.");
+  }
+
+  const dealer = await getDealerById(dealerMember.dealer_id);
+
+  if (!dealer) {
     throw new AuthGuardError(403, "No tienes acceso a este dealer.");
   }
 

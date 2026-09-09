@@ -1,14 +1,16 @@
-import { getCurrentDealer } from "@/modules/dealer/services/dealerService";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { listVehiclesForDealer } from "../../services/vehicleService";
 import { listCoverPhotosByVehicleId } from "../../services/vehiclePhotoService";
 import { getVehiclePhotoUrl } from "../../utils/vehiclePhotoUrl";
 import { VehicleCard } from "./VehicleCard";
 
+interface VehicleCatalogGridProps {
+  dealerId: number;
+}
+
 // RLS already guarantees published-only on the DB side; this filter only avoids fetching extra rows.
-export async function VehicleCatalogGrid() {
-  const dealer = await getCurrentDealer();
-  const vehicles = await listVehiclesForDealer(dealer.id, { publishedOnly: true });
+export async function VehicleCatalogGrid({ dealerId }: VehicleCatalogGridProps) {
+  const vehicles = await listVehiclesForDealer(dealerId, { publishedOnly: true });
 
   if (vehicles.length === 0) {
     return <EmptyState message="Todavía no hay vehículos publicados." />;
