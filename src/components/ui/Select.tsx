@@ -31,7 +31,9 @@ export function Select({ value, onValueChange, options, placeholder, className }
           className
         )}
       >
-        <SelectPrimitive.Value placeholder={placeholder} />
+        <SelectPrimitive.Value placeholder={placeholder}>
+          {(selectedValue: string | null) => options.find((option) => option.value === selectedValue)?.label}
+        </SelectPrimitive.Value>
         <SelectPrimitive.Icon className="text-ink-faint" />
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
